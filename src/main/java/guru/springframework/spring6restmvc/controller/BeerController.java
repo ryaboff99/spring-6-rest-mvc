@@ -21,14 +21,14 @@ public class BeerController {
 
     @GetMapping()
     public List<Beer> listBeers(){
-        return beerService.listBeers();
+        return beerService.getAllBeers();
     }
 
     @GetMapping("{beerId}")
-    public Beer getBeerById(@PathVariable("beerId") UUID beerId1) {
+    public Beer getBeerById(@PathVariable("beerId") UUID beerId) {
 
         log.debug("Get Beer by Id - in controller");
 
-        return beerService.getBeerById(beerId1);
+        return beerService.getBeerById(beerId);
     }
 }
