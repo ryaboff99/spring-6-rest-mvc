@@ -4,6 +4,7 @@ import guru.springframework.spring6restmvc.model.Beer;
 import guru.springframework.spring6restmvc.services.BeerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,10 @@ public class BeerController {
     public ResponseEntity handlePost(@RequestBody Beer beer) {
         Beer savedBeer = beerService.saveNewBeer(beer);
 
-        return new ResponseEntity(HttpStatus.CREATED);
+        HttpHeaders headers = new HttpHeaders();    // HTTP headers object
+        headers.add("Location", "/api/v1/beer/" + savedBeer.getId().toString());    // added the HTTP headers
+
+        return new ResponseEntity(headers, HttpStatus.CREATED); // bind HTTP headers to ResponseEntity. So now when client creates a new Beer object using the REST API, it will get back the location of that Beer object, including the unique ID of what we created
     }
 
     @GetMapping()
