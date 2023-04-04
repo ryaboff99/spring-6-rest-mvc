@@ -28,10 +28,10 @@ public class BeerController {
     public ResponseEntity handlePost(@RequestBody Beer beer) {
         Beer savedBeer = beerService.saveNewBeer(beer);
 
-        HttpHeaders headers = new HttpHeaders();    // HTTP headers object
-        headers.add("Location", "/api/v1/beer/" + savedBeer.getId().toString());    // added the HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/v1/beer/" + savedBeer.getId());
 
-        return new ResponseEntity(headers, HttpStatus.CREATED); // bind HTTP headers to ResponseEntity. So now when client creates a new Beer object using the REST API, it will get back the location of that Beer object, including the unique ID of what we created
+        return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @GetMapping()
