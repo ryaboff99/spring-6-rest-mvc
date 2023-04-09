@@ -13,12 +13,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.core.Is.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BeerController.class)
+@DisplayName("Beer Controller tests")
 class BeerControllerTest {
 
     @Autowired
@@ -50,9 +53,11 @@ class BeerControllerTest {
         given(beerService.getAllBeers()).willReturn(beerServiceImpl.getAllBeers());
 
         mockMvc.perform(get("/api/v1/beer")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType((MediaType.APPLICATION_JSON)))
                 .andExpect(jsonPath("$.length()", is(3)));
+
+        verify(beerService, times(1)).getAllBeers();
     }
 }
