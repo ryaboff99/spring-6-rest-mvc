@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CustomerController.class)
-@DisplayName("Beer Controller tests")
+@DisplayName("Customer Controller tests")
 class CustomerControllerTest {
 
     @Autowired
