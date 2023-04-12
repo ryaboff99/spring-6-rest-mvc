@@ -48,7 +48,7 @@ class BeerControllerTest {
 
     @Test
     @DisplayName("Beer is updated by Id")
-    void BeerIsUpdatedById() throws Exception {
+    void beerIsUpdatedById() throws Exception {
         Beer testBeer = beerServiceImpl.getAllBeers().get(0);
 
         mockMvc.perform(put("/api/v1/beer/" + testBeer.getId())
