@@ -24,7 +24,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,7 +67,7 @@ class CustomerControllerTest {
 
         Map<String, Object> customerMap = Map.of("name", "New Name");
 
-        mockMvc.perform(patch("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(patch(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerMap)))
                 .andExpect(status().isNoContent());
@@ -79,7 +83,7 @@ class CustomerControllerTest {
     void customerIsDeletedById() throws Exception {
         Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
-        mockMvc.perform(delete("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(delete(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -93,7 +97,7 @@ class CustomerControllerTest {
     void customerIsUpdatedById() throws Exception {
         Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
-        mockMvc.perform(put("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(put(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCustomer)))
@@ -112,7 +116,7 @@ class CustomerControllerTest {
 
         given(customerService.saveNewCustomer(any(Customer.class))).willReturn(compliteCustomer);
 
-        mockMvc.perform(post("/api/v1/customer")
+        mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(emptyCustomer)))
@@ -127,7 +131,7 @@ class CustomerControllerTest {
 
         given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
 
-        mockMvc.perform(get("/api/v1/customer/" + testCustomer.getId())
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -140,7 +144,7 @@ class CustomerControllerTest {
     void allCustomersAreListed() throws Exception {
         given(customerService.getAllCustomers()).willReturn(customerServiceImpl.getAllCustomers());
 
-        mockMvc.perform(get("/api/v1/customer")
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
