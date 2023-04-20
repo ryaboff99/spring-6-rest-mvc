@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -67,7 +68,7 @@ class CustomerControllerTest {
 
         Map<String, Object> customerMap = Map.of("name", "New Name");
 
-        mockMvc.perform(patch(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
+        mockMvc.perform(patch(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerMap)))
                 .andExpect(status().isNoContent());
@@ -83,7 +84,7 @@ class CustomerControllerTest {
     void customerIsDeletedById() throws Exception {
         Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
-        mockMvc.perform(delete(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
+        mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -97,7 +98,7 @@ class CustomerControllerTest {
     void customerIsUpdatedById() throws Exception {
         Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
-        mockMvc.perform(put(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
+        mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCustomer)))
@@ -125,13 +126,22 @@ class CustomerControllerTest {
     }
 
     @Test
+    @DisplayName("Customer is not found by Id return Not Found response status")
+    void customerIsNotFoundByIdReturnNotFoundResponseStatus() throws Exception {
+        given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     @DisplayName("Customer is returned by Id")
     void customerIsReturnedById() throws Exception {
         Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
-        given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
+        given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
-        mockMvc.perform(get(CustomerController.CUSTOMER_PATH + "/" + testCustomer.getId())
+        mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
