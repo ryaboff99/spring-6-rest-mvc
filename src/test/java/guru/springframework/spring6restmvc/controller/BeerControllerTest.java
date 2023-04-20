@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -58,6 +59,30 @@ class BeerControllerTest {
     @BeforeEach
     void setUp() {
         beerServiceImpl = new BeerServiceImpl();
+    }
+
+    @Test
+    @DisplayName("Beer is not found by Id return Not Found response status")
+    void beerIsNotFoundByIdReturnNotFoundResponseStatus() throws Exception {
+        given(beerService.getBeerById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(get(BeerController.BEER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Beer is returned by Id")
+    void beerIsReturnedById() throws Exception {
+        Beer testBeer = beerServiceImpl.getAllBeers().get(0);
+
+        given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
+
+        mockMvc.perform(get(BeerController.BEER_PATH_ID, testBeer.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
+                .andExpect(jsonPath("$.beerName", is(testBeer.getBeerName())));
     }
 
     @Test
@@ -122,21 +147,6 @@ class BeerControllerTest {
                         .content(objectMapper.writeValueAsString(emptyBeer)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
-    }
-
-    @Test
-    @DisplayName("Beer is returned by Id")
-    void beerIsReturnedById() throws Exception {
-        Beer testBeer = beerServiceImpl.getAllBeers().get(0);
-
-        given(beerService.getBeerById(testBeer.getId())).willReturn(testBeer);
-
-        mockMvc.perform(get(BeerController.BEER_PATH_ID, testBeer.getId())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
-                .andExpect(jsonPath("$.beerName", is(testBeer.getBeerName())));
     }
 
     @Test

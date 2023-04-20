@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -108,17 +109,17 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer getBeerById(UUID beerId) {
+    public Optional<Beer> getBeerById(UUID beerId) {
 
         log.debug("Get Beer by Id - in service. Id: " + beerId.toString());
 
-        return beerMap.get(beerId);
+        return Optional.of(beerMap.get(beerId));
     }
 
     @Override
     public Beer saveNewBeer(Beer beer) {
 
-        Beer savedBeer = Beer.builder()     // mimicking Beer persistence in DB by repository
+        Beer savedBeer = Beer.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .createdDate(LocalDateTime.now())
