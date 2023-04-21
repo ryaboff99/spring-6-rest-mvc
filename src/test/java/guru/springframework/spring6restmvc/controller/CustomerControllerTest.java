@@ -1,7 +1,7 @@
 package guru.springframework.spring6restmvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import guru.springframework.spring6restmvc.model.Customer;
+import guru.springframework.spring6restmvc.model.CustomerDTO;
 import guru.springframework.spring6restmvc.services.CustomerService;
 import guru.springframework.spring6restmvc.services.CustomerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +52,7 @@ class CustomerControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Customer> customerArgumentCaptor;
+    ArgumentCaptor<CustomerDTO> customerArgumentCaptor;
 
     CustomerServiceImpl customerServiceImpl;
 
@@ -64,7 +64,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Customer is patched by Id")
     void customerIsPatchedById() throws Exception {
-        Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
         Map<String, Object> customerMap = Map.of("name", "New Name");
 
@@ -82,7 +82,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Customer is deleted by Id")
     void customerIsDeletedById() throws Exception {
-        Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
         mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
@@ -96,7 +96,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Customer is updated by Id")
     void customerIsUpdatedById() throws Exception {
-        Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
         mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON)
@@ -104,7 +104,7 @@ class CustomerControllerTest {
                         .content(objectMapper.writeValueAsString(testCustomer)))
                 .andExpect(status().isNoContent());
 
-        verify(customerService).updateCustomerById(uuidArgumentCaptor.capture(), any(Customer.class));
+        verify(customerService).updateCustomerById(uuidArgumentCaptor.capture(), any(CustomerDTO.class));
 
         assertThat(testCustomer.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
@@ -112,10 +112,10 @@ class CustomerControllerTest {
     @Test
     @DisplayName("New Customer is persisted")
     void newCustomerIsPersisted() throws Exception {
-        Customer emptyCustomer = Customer.builder().build();
-        Customer compliteCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO emptyCustomer = CustomerDTO.builder().build();
+        CustomerDTO compliteCustomer = customerServiceImpl.getAllCustomers().get(0);
 
-        given(customerService.saveNewCustomer(any(Customer.class))).willReturn(compliteCustomer);
+        given(customerService.saveNewCustomer(any(CustomerDTO.class))).willReturn(compliteCustomer);
 
         mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -137,7 +137,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Customer is returned by Id")
     void customerIsReturnedById() throws Exception {
-        Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
         given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
