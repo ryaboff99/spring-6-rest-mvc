@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.5</version>
+        <version>3.0.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>guru.springframework</groupId>
@@ -15,21 +15,39 @@
     <description>spring-6-rest-mvc</description>
     <properties>
         <java.version>17</java.version>
+        <!--property for the MapStruct version, We need this to use in couple places inside the pom-->
+        <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
         </dependency>
+        <!--brings Spring Boot starter for data JPA-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!--brings H2 in-memory database-->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <!--brings in MapStruct dependency (with version defined in 'property')-->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -52,7 +70,64 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!--brings in Maven compiler plugin-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <!--required configurations for Maven compiler plugin-->
+                <!--first we set up the source-->
+                <configuration>
+                    <!--'17' in <source> and <target> is version of Java used in current project-->
+                    <source>17</source>
+                    <target>17</target>
+                    <!--this three dependencies (mapstruct-processor,lombok,lombok-mapstruct-binding) specify annotation processors path - this is a hook into the compile process for processing of Mapstruct and Lombok, to make them work together-->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <!--provide an Lombok-MapStruct binding - this is also annotation processor, if you are missing this MapStruct will not work properly with the project Lombok generated code-->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <!--provide an argument for the compiler (MapStruct does have several compiler options) - tell MapStruct to create annotated classes for us so the MapStruct can optionally mark the classes that it generates with the Spring component annotation so they get picked up by a component scan and add it to the Spring context. Here we want to do so that the MapStruct generated classes will automatically get brought into our Spring context and we can use them for dependency injection. So if you are not getting annotated classes, you are missing that compiler argument-->
+                    <!--tell MapStruct to generate @Component annotation on generated implementations of Mappers methods (for ex. 'beerDtoToBeer' and 'beerToBeerDto') and so Spring will add them in Context & will inject them-->
+                    <compilerArgs>
+                        <!--'A' before mapstruct means 'Argument', 'defaultComponentModel=spring' override defaultComponentModel (one of 8 MapStruct options that you can set) to get it set up with the Spring Components instead of (default) builders (the other default options are fine)-->
+                        <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
