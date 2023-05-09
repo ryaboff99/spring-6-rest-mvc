@@ -15,9 +15,9 @@ public interface BeerService {
 
     BeerDTO saveNewBeer(BeerDTO beer);
 
-    void updateBeerById(UUID beerId, BeerDTO beer);
+    Optional<BeerDTO> updateBeerById(UUID beerId, BeerDTO beer);    // change signatures to return Optional<BeerDTO> for check in the Controller whether come element or Optional.empty() (and throw 404 if empty)
 
-    void deleteById(UUID beerId);
+    Boolean deleteById(UUID beerId);    // change signatures to return Boolean for check in the Controller whether element was found in DB and deleted (and throw 404 if was not found & deleted)
 
-    void patchBeerById(UUID beerId, BeerDTO beer);
+    Optional<BeerDTO> patchBeerById(UUID beerId, BeerDTO beer);    // change signatures to return Optional<BeerDTO> for check in the Controller whether come element or Optional.empty() (and throw 404 if empty)
 }
