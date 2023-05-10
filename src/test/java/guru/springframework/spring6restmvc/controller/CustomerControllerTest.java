@@ -66,6 +66,8 @@ class CustomerControllerTest {
     void customerIsPatchedById() throws Exception {
         CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
+        given(customerService.patchCustomerById(any(), any())).willReturn(Optional.of(testCustomer));
+
         Map<String, Object> customerMap = Map.of("name", "New Name");
 
         mockMvc.perform(patch(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
@@ -84,6 +86,8 @@ class CustomerControllerTest {
     void customerIsDeletedById() throws Exception {
         CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
+        given(customerService.deleteById(any())).willReturn(true);
+
         mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -97,6 +101,8 @@ class CustomerControllerTest {
     @DisplayName("Customer is updated by Id")
     void customerIsUpdatedById() throws Exception {
         CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
+
+        given(customerService.updateCustomerById(any(), any())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON)
