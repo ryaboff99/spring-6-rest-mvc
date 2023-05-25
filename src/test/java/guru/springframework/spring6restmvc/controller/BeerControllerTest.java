@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +60,38 @@ class BeerControllerTest {
     @BeforeEach
     void setUp() {
         beerServiceImpl = new BeerServiceImpl();
+    }
+
+    @Test
+    @DisplayName("Updating invalid Beer returns Bad Request")
+    void updatingInvalidBeerReturnsBadRequest() throws Exception {
+        BeerDTO beerDTO = BeerDTO.builder().build();
+
+        MvcResult mvcResult = mockMvc.perform(put(BeerController.BEER_PATH_ID, UUID.randomUUID())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(6)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    @DisplayName("Persisting invalid Beer returns Bad Request")
+    void persistingInvalidBeerReturnsBadRequest() throws Exception {
+        BeerDTO beerDTO = BeerDTO.builder().build();
+
+        MvcResult mvcResult = mockMvc.perform(post(BeerController.BEER_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(6)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -142,15 +175,18 @@ class BeerControllerTest {
     @Test
     @DisplayName("New Beer is persisted")
     void newBeerIsPersisted() throws Exception {
-        BeerDTO emptyBeer = BeerDTO.builder().build();
-        BeerDTO compliteBeer = beerServiceImpl.getAllBeers().get(0);
+        BeerDTO beerWithoutId = beerServiceImpl.getAllBeers().get(0);
+        beerWithoutId.setId(null);
+        beerWithoutId.setVersion(null);
 
-        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(compliteBeer);
+        BeerDTO beerWithId = beerServiceImpl.getAllBeers().get(1);
+
+        given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerWithId);
 
         mockMvc.perform(post(BeerController.BEER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(emptyBeer)))
+                        .content(objectMapper.writeValueAsString(beerWithoutId)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }
