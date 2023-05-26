@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +60,38 @@ class CustomerControllerTest {
     @BeforeEach
     void setUp() {
         customerServiceImpl = new CustomerServiceImpl();
+    }
+
+    @Test
+    @DisplayName("Updating invalid Customer returns Bad Request")
+    void updatingInvalidCustomerReturnsBadRequest() throws Exception {
+        CustomerDTO customerDTO = CustomerDTO.builder().build();
+
+        MvcResult mvcResult = mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(customerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    @DisplayName("Persisting invalid Customer returns Bad Request")
+    void persistingInvalidCustomerReturnsBadRequest() throws Exception {
+        CustomerDTO customerDTO = CustomerDTO.builder().build();
+
+        MvcResult mvcResult = mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(customerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -118,15 +151,18 @@ class CustomerControllerTest {
     @Test
     @DisplayName("New Customer is persisted")
     void newCustomerIsPersisted() throws Exception {
-        CustomerDTO emptyCustomer = CustomerDTO.builder().build();
-        CustomerDTO compliteCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO customerWithoutId = customerServiceImpl.getAllCustomers().get(0);
+        customerWithoutId.setId(null);
+        customerWithoutId.setVersion(null);
 
-        given(customerService.saveNewCustomer(any(CustomerDTO.class))).willReturn(compliteCustomer);
+        CustomerDTO customerWithId = customerServiceImpl.getAllCustomers().get(1);
+
+        given(customerService.saveNewCustomer(any(CustomerDTO.class))).willReturn(customerWithId);
 
         mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(emptyCustomer)))
+                        .content(objectMapper.writeValueAsString(customerWithoutId)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }

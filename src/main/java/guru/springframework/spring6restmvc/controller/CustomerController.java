@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,7 +51,7 @@ public class CustomerController {
 
     @PutMapping(CUSTOMER_PATH_ID)
     public ResponseEntity updateCustomerById(@PathVariable("customerId") UUID customerId,
-                                             @RequestBody CustomerDTO customer) {
+                                             @Validated @RequestBody CustomerDTO customer) {
         if(customerService.updateCustomerById(customerId, customer).isEmpty()) {
             throw new NotFoundException();
         }
@@ -59,7 +60,7 @@ public class CustomerController {
     }
 
     @PostMapping(CUSTOMER_PATH)
-    public ResponseEntity handlePost(@RequestBody CustomerDTO customer) {
+    public ResponseEntity handlePost(@Validated @RequestBody CustomerDTO customer) {
         CustomerDTO savedCustomer = customerService.saveNewCustomer(customer);
 
         HttpHeaders headers = new HttpHeaders();
