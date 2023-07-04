@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.core.Is.is;
@@ -59,6 +60,14 @@ class BeerControllerIT {
     }
 
     @Test
+    void testListBeersByName() throws Exception {
+        mockMvc.perform(get(BeerController.BEER_PATH)
+                        .queryParam("beerName", "IPA")) // Append to the query string and also add to the request parameters map. The parameter name and value are encoded when they are added to the query string.
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(336)));
+    }
+
+    @Test
     void patchedBeerBadName() throws Exception {
         Beer testBeer = beerRepository.findAll().get(0);
 
@@ -78,9 +87,9 @@ class BeerControllerIT {
     @Test
     @DisplayName("List of Beers is returned")
     void listOfBeersIsReturned() {
-        List<BeerDTO> testDtoList = beerController.listBeers();
+        List<BeerDTO> testDtoList = beerController.listBeers(null);
 
-        assertThat(testDtoList.size()).isEqualTo(3);
+        assertThat(testDtoList.size()).isEqualTo(2413);
     }
 
     @Rollback
@@ -89,7 +98,7 @@ class BeerControllerIT {
     @DisplayName("Empty list of Beers is returned")
     void emptyListOfBeersIsReturned() {
         beerRepository.deleteAll();
-        List<BeerDTO> testDtoList = beerController.listBeers();
+        List<BeerDTO> testDtoList = beerController.listBeers(null);
 
         assertThat(testDtoList.size()).isEqualTo(0);
     }
@@ -184,7 +193,7 @@ class BeerControllerIT {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
         assertThat(beerRepository.findById(testId)).isEmpty();
-        assertThat(beerRepository.count()).isEqualTo(2);
+        assertThat(beerRepository.count()).isEqualTo(2412);
     }
 
     @Test

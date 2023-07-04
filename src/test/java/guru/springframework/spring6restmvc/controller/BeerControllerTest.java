@@ -106,7 +106,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Beer is returned by Id")
     void beerIsReturnedById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.getAllBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.getAllBeers(null).get(0);
 
         given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
 
@@ -121,7 +121,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Beer is patched by Id")
     void beerIsPatchedById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.getAllBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.getAllBeers(null).get(0);
 
         Map<String, Object> beerMap = Map.of("beerName", "New Name");
 
@@ -141,7 +141,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Beer is deleted by Id")
     void beerIsDeletedById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.getAllBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.getAllBeers(null).get(0);
 
         given(beerService.deleteById(any())).willReturn(true);
 
@@ -157,7 +157,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Beer is updated by Id")
     void beerIsUpdatedById() throws Exception {
-        BeerDTO testBeer = beerServiceImpl.getAllBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.getAllBeers(null).get(0);
 
         given(beerService.updateBeerById(any(), any())).willReturn(Optional.of(testBeer));
 
@@ -175,11 +175,11 @@ class BeerControllerTest {
     @Test
     @DisplayName("New Beer is persisted")
     void newBeerIsPersisted() throws Exception {
-        BeerDTO beerWithoutId = beerServiceImpl.getAllBeers().get(0);
+        BeerDTO beerWithoutId = beerServiceImpl.getAllBeers(null).get(0);
         beerWithoutId.setId(null);
         beerWithoutId.setVersion(null);
 
-        BeerDTO beerWithId = beerServiceImpl.getAllBeers().get(1);
+        BeerDTO beerWithId = beerServiceImpl.getAllBeers(null).get(1);
 
         given(beerService.saveNewBeer(any(BeerDTO.class))).willReturn(beerWithId);
 
@@ -194,7 +194,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("All Beers are Listed")
     void allBeersAreListed() throws Exception {
-        given(beerService.getAllBeers()).willReturn(beerServiceImpl.getAllBeers());
+        given(beerService.getAllBeers(null)).willReturn(beerServiceImpl.getAllBeers(null));
 
         mockMvc.perform(get(BeerController.BEER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
@@ -202,6 +202,6 @@ class BeerControllerTest {
                 .andExpect(content().contentType((MediaType.APPLICATION_JSON)))
                 .andExpect(jsonPath("$.length()", is(3)));
 
-        verify(beerService, times(1)).getAllBeers();
+        verify(beerService, times(1)).getAllBeers(null);
     }
 }

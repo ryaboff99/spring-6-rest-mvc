@@ -9,14 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -68,8 +61,8 @@ public class BeerController {
     }
 
     @GetMapping(BEER_PATH)
-    public List<BeerDTO> listBeers(){
-        return beerService.getAllBeers();
+    public List<BeerDTO> listBeers(@RequestParam(required = false) String beerName) {   // tell Spring to bind a request parameter to that String (beerName), parameter to bind may be specified in annotation parameters or match variable name if not specified
+        return beerService.getAllBeers(beerName);
     }
 
     @GetMapping(BEER_PATH_ID)
