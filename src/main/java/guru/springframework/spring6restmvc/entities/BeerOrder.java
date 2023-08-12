@@ -1,5 +1,6 @@
 package guru.springframework.spring6restmvc.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,7 +39,7 @@ public class BeerOrder {
         this.customerRef = customerRef;
         this.setCustomer(customer);
         this.beerOrderLines = beerOrderLines;
-        this.beerOrderShipment = beerOrderShipment;
+        this.setBeerOrderShipment(beerOrderShipment);
     }
 
     @Id
@@ -67,9 +68,13 @@ public class BeerOrder {
         customer.getBeerOrders().add(this);
     }
 
+    public void setBeerOrderShipment(BeerOrderShipment beerOrderShipment) {
+        this.beerOrderShipment = beerOrderShipment;
+        beerOrderShipment.setBeerOrder(this);
+    }
     @OneToMany(mappedBy = "beerOrder")
     private Set<BeerOrderLine> beerOrderLines;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)    // tells Hibernate "when I save the BeerOrder Entity, if it has an unsaved Entity on it (Owned), to go ahead and persist that unsaved Entity as well" - this saves us from additional coding allows Hibernate to manage these properties.
     private BeerOrderShipment beerOrderShipment;
 }
